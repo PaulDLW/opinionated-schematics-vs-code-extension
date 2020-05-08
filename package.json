@@ -42,17 +42,54 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:extension.helloWorld"
+    "onCommand:extension.refreshOpinionatedSchematics",
+    "workspaceContains:**/angular.json",
+    "workspaceContains:**/workspace.json"
   ],
   "main": "./out/extension.js",
   "publisher": "pauldlw",
   "contributes": {
     "commands": [
       {
-        "command": "extension.helloWorld",
-        "title": "Hello World"
+        "command": "extension.componentSchematic",
+        "title": "Component Schematic"
+      },
+      {
+        "command": "extension.moduleSchematic",
+        "title": "Module Schematic"
+      },
+      {
+        "command": "extension.nestControllerSchematic",
+        "title": "Controller Schematic"
+      },
+      {
+        "command": "extension.allSchematics",
+        "title": "All Schematics"
       }
-    ]
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "when": "explorerResourceIsFolder && opinionatedSchematicsActive",
+          "group": "angular",
+          "command": "extension.componentSchematic"
+        },
+        {
+          "when": "explorerResourceIsFolder && opinionatedSchematicsActive",
+          "group": "angular",
+          "command": "extension.moduleSchematic"
+        },
+        {
+          "when": "explorerResourceIsFolder && opinionatedSchematicsActive",
+          "group": "nest",
+          "command": "extension.nestControllerSchematic"
+        },
+        {
+          "when": "explorerResourceIsFolder && opinionatedSchematicsActive",
+          "command": "extension.allSchematics"
+        }
+      ]
+    }
   },
   "scripts": {
     "watch": "tsc -watch -p ./",
