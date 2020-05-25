@@ -124,6 +124,7 @@
     "ts-lint": "^4.5.1",
     "typescript": "^3.8.2",
     "vrsource-tslint-rules": "^6.0.0",
+    "vsce": "^1.75.0",
     "vscode": "^1.1.36"
   }
 }
