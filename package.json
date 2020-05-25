@@ -100,7 +100,8 @@
     "test": "node ./out/test/runTest.js",
     "vscode:prepackage": "npm run build",
     "vscode:package": "vsce package",
-    "vscode:prepublish": "npm run build"
+    "vscode:prepublish": "npm run build",
+    "vscode:publish": "vsce publish"
   },
   "dependencies": {},
   "devDependencies": {

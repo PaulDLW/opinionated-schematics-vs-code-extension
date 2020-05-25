@@ -15,21 +15,18 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 12.x
-          registry-url: 'https://registry.npmjs.org'
+          registry-url: "https://registry.npmjs.org"
       - name: npm install, build, and test
         run: |
           npm ci
           npm run build
-          npm test
         env:
           CI: true
       - name: semantic release
         run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: npm publish
-        run: npm publish
-        continue-on-error: true
+      - name: publish
+        run: npm run vscode:publish
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          VSCE_PAT: $
