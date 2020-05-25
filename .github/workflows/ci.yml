@@ -27,8 +27,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: publish
-        run: npm run vscode:publish
+        run: npm run vscode:publish -- -p $VSCE_PAT
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
-        with:
-          args: -- -p $VSCE_PAT
