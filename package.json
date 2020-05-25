@@ -1,5 +1,6 @@
 {
   "name": "opinionated-schematics-vs-code-extension",
+  "displayName": "Opinionated Schematics",
   "version": "1.0.0",
   "author": "Paul de la Warr",
   "license": "ISC",
@@ -97,11 +98,11 @@
     "lint": "eslint src --ext ts",
     "pretest": "npm run build && npm run lint",
     "test": "node ./out/test/runTest.js",
+    "vscode:prepackage": "npm run build",
+    "vscode:package": "vsce package",
     "vscode:prepublish": "npm run build"
   },
-  "dependencies": {
-    "vscode": "^1.1.36"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@commitlint/cli": "^8.3.5",
     "@commitlint/config-conventional": "^8.3.4",
@@ -121,6 +122,7 @@
     "ts-jest": "^25.2.1",
     "ts-lint": "^4.5.1",
     "typescript": "^3.8.2",
-    "vrsource-tslint-rules": "^6.0.0"
+    "vrsource-tslint-rules": "^6.0.0",
+    "vscode": "^1.1.36"
   }
 }
