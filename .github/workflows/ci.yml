@@ -29,4 +29,4 @@ jobs:
       - name: publish
         run: npm run vscode:publish
         env:
-          VSCE_PAT: $
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
