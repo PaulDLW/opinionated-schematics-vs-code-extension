@@ -6,5 +6,6 @@ export interface Schematic {
 
 export interface Argument {
   name: string;
+  type: string;
   defaultValue: string;
 }

@@ -1,13 +1,16 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
-import { Argument, Schematic } from "../models/schematic.mode";
+import { InitialisationOutput } from "../models/initialisation-output.model";
+import { Argument, Schematic } from "../models/schematic.model";
+import { getRoot } from "./util/get-root.function";
 
 export async function registerSchematics(
   context: vscode.ExtensionContext,
+  initialisationOutput: InitialisationOutput,
   extensionName: string
 ) {
-  const schematics = getSchematics(extensionName);
+  const schematics = getSchematics(initialisationOutput, extensionName);
 
   const componentSchematic = schematics.find(
     (schematic) => schematic.name === "component"
@@ -16,6 +19,7 @@ export async function registerSchematics(
   if (!!componentSchematic) {
     let componentSchematicSub = registerSchematic(
       "extension.componentSchematic",
+      initialisationOutput,
       componentSchematic
     );
 
@@ -29,6 +33,7 @@ export async function registerSchematics(
   if (!!moduleSchematic) {
     let moduleSchematicSub = registerSchematic(
       "extension.moduleSchematic",
+      initialisationOutput,
       moduleSchematic
     );
 
@@ -42,16 +47,20 @@ export async function registerSchematics(
   if (!!nestControllerSchematic) {
     let nestControllerSchematicSub = registerSchematic(
       "extension.nestControllerSchematic",
+      initialisationOutput,
       nestControllerSchematic
     );
 
     context.subscriptions.push(nestControllerSchematicSub);
   }
 
-  await registerAllSchematics(schematics);
+  await registerAllSchematics(initialisationOutput, schematics);
 }
 
-async function registerAllSchematics(schematics: Schematic[]) {
+async function registerAllSchematics(
+  initialisationOutput: InitialisationOutput,
+  schematics: Schematic[]
+) {
   return vscode.commands.registerCommand(
     "extension.allSchematics",
     async (context) => {
@@ -61,24 +70,40 @@ async function registerAllSchematics(schematics: Schematic[]) {
         schematicNames
       );
 
+      if (!chosenSchematicName) {
+        return;
+      }
+
       const chosenSchematic = schematics.find(
         (schematic) => schematic.name === chosenSchematicName
       );
 
       if (!!chosenSchematic) {
-        await createSchematicSteps(context, chosenSchematic);
+        await createSchematicSteps(
+          context,
+          initialisationOutput,
+          chosenSchematic
+        );
       }
     }
   );
 }
 
-function registerSchematic(extensionName: string, schematic: Schematic) {
+function registerSchematic(
+  extensionName: string,
+  initialisationOutput: InitialisationOutput,
+  schematic: Schematic
+) {
   return vscode.commands.registerCommand(extensionName, async (context) => {
-    await createSchematicSteps(context, schematic);
+    await createSchematicSteps(context, initialisationOutput, schematic);
   });
 }
 
-async function createSchematicSteps(context: any, schematic: Schematic) {
+async function createSchematicSteps(
+  context: any,
+  initialisationOutput: InitialisationOutput,
+  schematic: Schematic
+) {
   const root = getRoot();
   const rootRelativePath = path.relative(root, context.fsPath);
 
@@ -109,8 +134,19 @@ async function createSchematicSteps(context: any, schematic: Schematic) {
     ignoreFocusOut: true,
   });
 
+  if (!componentName) {
+    return;
+  }
+
   const requiredOptions = schematic.arguments
-    .map((argument) => `--${argument.name}="${argument.defaultValue}"`)
+    .map(
+      (argument) =>
+        `--${argument.name}=${
+          argument.type !== "boolean"
+            ? `"${argument.defaultValue}"`
+            : `${argument.defaultValue}`
+        }`
+    )
     .join(" ");
 
   const initialSchematicOptions = `--projectName="${projectName}" --path="${sourceRelativePath}" --name="${componentName}" ${requiredOptions}`;
@@ -126,14 +162,17 @@ async function createSchematicSteps(context: any, schematic: Schematic) {
 
   terminal.show();
 
-  terminal.sendText(`ng g ${schematic.command} ${schematicOptions}`);
+  terminal.sendText(
+    `${initialisationOutput.commandPrefix} ${schematic.command} ${schematicOptions}`
+  );
 }
 
-function getSchematics(extensionName: string): Schematic[] {
-  const root = getRoot();
-
+function getSchematics(
+  initialisationOutput: InitialisationOutput,
+  extensionName: string
+): Schematic[] {
   const schematicFolderPath =
-    root + path.sep + "node_modules" + path.sep + extensionName;
+    initialisationOutput.nodeModulesPath + path.sep + extensionName;
 
   const schematicFolderExists = fs.existsSync(schematicFolderPath);
 
@@ -188,6 +227,7 @@ function getSchematicArguments(schemaJson: any): Argument[] {
     )
     .map((requiredStr: string) => ({
       name: requiredStr,
+      type: schemaJson.properties[requiredStr].type,
       defaultValue: getDefaultValue(schemaJson.properties[requiredStr]),
     }));
 }
@@ -209,10 +249,4 @@ function createDefaultValueFromType(type: string) {
     default:
       return "";
   }
-}
-
-function getRoot() {
-  return !!vscode.workspace.workspaceFolders
-    ? vscode.workspace.workspaceFolders[0].uri.fsPath
-    : "";
 }

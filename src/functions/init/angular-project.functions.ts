@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as vscode from "vscode";
+import { exec } from "../sh.function";
 
 export async function isAngularProject(loggingChannel: vscode.OutputChannel) {
   const angularJson = await vscode.workspace.findFiles("angular.json");
@@ -65,6 +66,24 @@ export async function doesAngularProjectHaveCollectionReference(
   } else if (defaultCollection !== packageName) {
     loggingChannel.appendLine(
       `angular.json does not contain ${packageName} in the cli.defaultProject property, please add 'cli: {defaultProject: "${packageName}"}'`
+    );
+    return false;
+  }
+
+  return true;
+}
+
+export async function isPackageInstalledGlobally(
+  packageName: string,
+  loggingChannel: vscode.OutputChannel
+) {
+  const globalModules = exec("npm list -g --depth=0");
+
+  const moduleFound = globalModules.includes(packageName);
+
+  if (!moduleFound) {
+    loggingChannel.appendLine(
+      `Package ${packageName} has not been found globally`
     );
     return false;
   }
