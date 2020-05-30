@@ -15,9 +15,6 @@ export async function doesPackageJsonHavePackageInstalled(
   const packageJsonContents = fs.readFileSync(packageJson[0].fsPath).toString();
 
   if (!packageJsonContents.includes(packageName)) {
-    loggingChannel.appendLine(
-      `package.json does not contain ${packageName} as a dependancy, please do "npm install --save-dev ${packageName}"`
-    );
     return false;
   }
 

@@ -9,29 +9,33 @@ import {
 } from "./angular-project.functions";
 import { doesPackageJsonHavePackageInstalled } from "./package-json.functions";
 
-export async function initExtension(extensionName: string) {
-  const loggingChannel = vscode.window.createOutputChannel(extensionName);
+export async function initExtension(packageName: string) {
+  const loggingChannel = vscode.window.createOutputChannel(packageName);
 
   if (!(await isAngularProject(loggingChannel))) {
     return null;
   }
 
-  let useGlobalExtension = false;
+  let useGlobalExtension = await isPackageInstalledGlobally(
+    packageName,
+    loggingChannel
+  );
 
   if (
-    !(await doesPackageJsonHavePackageInstalled(
-      extensionName,
-      loggingChannel
-    )) ||
-    !(await doesAngularProjectHaveCollectionReference(
-      extensionName,
+    (await doesPackageJsonHavePackageInstalled(packageName, loggingChannel)) &&
+    (await doesAngularProjectHaveCollectionReference(
+      packageName,
       loggingChannel
     ))
   ) {
-    if (!isPackageInstalledGlobally(extensionName, loggingChannel)) {
+    useGlobalExtension = false;
+  } else {
+    if (useGlobalExtension === false) {
+      loggingChannel.appendLine(
+        `package.json does not contain ${packageName} as a dependancy, please do "npm install --save-dev ${packageName}"` +
+          `, or install globally "npm install -g opinionated-schematics-cli"`
+      );
       return null;
-    } else {
-      useGlobalExtension = true;
     }
   }
 
@@ -48,7 +52,7 @@ export async function initExtension(extensionName: string) {
     true
   );
 
-  loggingChannel.appendLine(`Extension "${extensionName}" is now active`);
+  loggingChannel.appendLine(`Extension "${packageName}" is now active`);
 
   return {
     commandPrefix: useGlobalExtension ? "os" : "ng g",
