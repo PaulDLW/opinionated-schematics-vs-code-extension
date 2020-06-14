@@ -57,6 +57,16 @@ export async function initExtension(packageName: string) {
   return {
     commandPrefix: useGlobalExtension ? "os" : "ng g",
     nodeModulesPath: nodeModulesPath,
+    schematicFolderPath: !useGlobalExtension
+      ? nodeModulesPath + path.sep + packageName
+      : nodeModulesPath +
+        path.sep +
+        packageName +
+        "-cli" +
+        path.sep +
+        "node_modules" +
+        path.sep +
+        packageName,
   } as InitialisationOutput;
 }
 

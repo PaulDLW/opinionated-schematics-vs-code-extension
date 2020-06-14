@@ -8,10 +8,10 @@ import { registerSchematics } from "./functions/register-schematics.functions";
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export async function activate(context: vscode.ExtensionContext) {
-  const commandPrefix = await initExtension(EXTENSION_NAME);
+  const initOutput = await initExtension(EXTENSION_NAME);
 
-  if (commandPrefix) {
-    await registerSchematics(context, commandPrefix, EXTENSION_NAME);
+  if (initOutput) {
+    await registerSchematics(context, initOutput);
   }
 }
 

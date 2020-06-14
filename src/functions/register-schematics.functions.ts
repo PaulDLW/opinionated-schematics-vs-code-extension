@@ -7,10 +7,9 @@ import { getRoot } from "./util/get-root.function";
 
 export async function registerSchematics(
   context: vscode.ExtensionContext,
-  initialisationOutput: InitialisationOutput,
-  extensionName: string
+  initialisationOutput: InitialisationOutput
 ) {
-  const schematics = getSchematics(initialisationOutput, extensionName);
+  const schematics = getSchematics(initialisationOutput);
 
   const componentSchematic = schematics.find(
     (schematic) => schematic.name === "component"
@@ -168,11 +167,9 @@ async function createSchematicSteps(
 }
 
 function getSchematics(
-  initialisationOutput: InitialisationOutput,
-  extensionName: string
+  initialisationOutput: InitialisationOutput
 ): Schematic[] {
-  const schematicFolderPath =
-    initialisationOutput.nodeModulesPath + path.sep + extensionName;
+  const schematicFolderPath = initialisationOutput.schematicFolderPath;
 
   const schematicFolderExists = fs.existsSync(schematicFolderPath);
 
